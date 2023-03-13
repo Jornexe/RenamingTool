@@ -4,7 +4,7 @@ import os
 num_files = int(input("How many files do you want to create? "))
 
 # Specify the format of the filename
-prefix = "dummyfiles/Fa_L0033_"
+prefix = "dummyfiles/_"
 suffix = ".dummy"
 
 # Create the files
