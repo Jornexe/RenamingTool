@@ -7,12 +7,16 @@ from os import listdir
 import re
 
 # assign dir
-wdir = r"C:\Projects\RenamingTool"
+wdir = os.getcwd()
+lastDir = ""
+print(wdir)
 # assign new dir
 def getdirlog():
     root = tk.Tk()
     root.withdraw()
-    default_path = os.getcwd()
+    if lastDir:
+        default_path = lastDir
+    else: default_path = os.getcwd()
     options = {'initialdir': default_path}
     wdir = filedialog.askdirectory(**options)
     return wdir
@@ -22,7 +26,8 @@ def update_wdir():
     wdir = getdirlog()
 
 # gets all files in wdir
-onlyfiles = [f for f in listdir(wdir+"/dummyfiles") if isfile(join(wdir+"/dummyfiles", f))]
+
+onlyfiles = [f for f in listdir(wdir) if isfile(join(wdir, f))]
 
 selectedFiles = []
 
@@ -39,24 +44,35 @@ with dpg.theme() as item_theme:
 # file selection
 lastSelectedFile = ""
 def selectFiles(s, e):
+    s = re.sub(r'\d+$', '', s)
+    global lastSelectedFile
+    global selectedFiles
+    # print(lastSelectedFile)
     # multi select
+    def test(a, b):
+        for x in range(a, b+1):
+            new_string = re.sub(r"\d+(?=\.[^.]*$)", str(x).zfill(3), lastSelectedFile)
+            selectedFiles.append(new_string)
     if (dpg.is_key_down(key=dpg.mvKey_Shift) and not dpg.is_key_down(key=dpg.mvKey_Control)):
         if lastSelectedFile:
-            None
+            a = int(re.search(r"\d+(?=\.[^.]*$)", lastSelectedFile).group())
+            b = int(re.search(r"\d+(?=\.[^.]*$)", s).group())
+            if (a < b):
+                test(a, b)
+            else: test(b, a)  
         else: 
-            selectedFiles.append(re.sub(r'\d+$', '', s))
+            selectedFiles.append(s)
     # single multi select
     elif (dpg.is_key_down(key=dpg.mvKey_Control) and not dpg.is_key_down(key=dpg.mvKey_Shift)):
-        if (re.sub(r'\d+$', '', s) in selectedFiles):
-            selectedFiles.remove(re.sub(r'\d+$', '', s))
+        if (s in selectedFiles):
+            selectedFiles.remove(s)
         else:
-            selectedFiles.append(re.sub(r'\d+$', '', s))
+            selectedFiles.append(s)
     # single select
     else:
         selectedFiles.clear()
-        selectedFiles.append(re.sub(r'\d+$', '', s))
-    lastSelectedFile = re.sub(r'\d+$', '', s)
-
+        selectedFiles.append(s)
+    lastSelectedFile = s
     highlightSelectedFiles()
     print(selectedFiles)
 
@@ -87,16 +103,10 @@ with dpg.stage(tag="Staging"):
                 with dpg.table_row() as theTableRow:
                     dpg.add_selectable(label=f"{i}", tag=i+"0", callback=selectFiles, span_columns=True)
                     dpg.add_selectable(label=f"{i}", tag=i+"1")
-                    dpg.add_selectable(label=f"{os.path.getsize(wdir + '/dummyfiles/' + i )}", tag=i+"2")
+                    dpg.add_selectable(label=f"{os.path.getsize(wdir + '/' + i )}", tag=i+"2")
                     dpg.add_selectable(label=f"Row 3 Column test", tag=i+"3")
                     dpg.add_selectable(label=f"Row 4 Column test", tag=i+"4")
-
-def unstage():
-    dpg.move_item("fileTableGroup", parent="tableWindow")
-    for i in onlyfiles:
-        for x in range(0, 5):
-            None
-            # dpg.bind_item_handler_registry(item=i+str(x), handler_registry="fileClickedHandler")
+dpg.move_item("fileTableGroup", parent="tableWindow")
 
 width, height = 600,600
 
@@ -117,7 +127,6 @@ try:
     dpg.set_primary_window("Prime", True)
 except Exception as e:
     print(e)
-unstage()
-# updateHeader()
+
 dpg.start_dearpygui()
 dpg.destroy_context()
