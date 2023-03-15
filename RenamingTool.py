@@ -139,7 +139,6 @@ def generateTable():
 
 
 # Main DPG window
-width, height = 600,600
 with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True, no_move=True):
     dpg.add_input_text(tag="curDir",default_value=wdir, label="Current Directory", callback=lambda e,s : print(e,s))
     dpg.add_button(tag="testing",label="select directory", callback=getdirlog)
@@ -171,7 +170,7 @@ with dpg.item_handler_registry(tag="updateOnViewportChange"):
 dpg.bind_item_handler_registry(item="Prime", handler_registry="updateOnViewportChange")
 
 
-dpg.create_viewport(title='Renaming Utility', width=width, height=height)
+dpg.create_viewport(title='Renaming Utility', width=600, height=600)
 
 
 dpg.setup_dearpygui()
