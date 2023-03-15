@@ -16,7 +16,7 @@ dpg.add_stage(tag="Staging")
 
 
 # assign dir
-wdir = os.getcwd()
+wdir = os.getcwd().replace('\\', '/')
 lastDir = ""
 
 
@@ -30,6 +30,10 @@ def getdirlog():
     else: default_path = wdir
     options = {'initialdir': default_path}
     wdir = filedialog.askdirectory(**options)
+    try:
+        dpg.configure_item(item="curDir", default_value=wdir)
+    except Exception as e:
+        print(e)
     generateTable()
 
 
@@ -55,11 +59,11 @@ with dpg.theme() as item_theme:
 selectedFiles = []
 lastSelectedFile = ""
 def selectFiles(s, e):
-    s = re.sub(r'\d+$', '', s)
+    s = re.sub(r'\d+$', '', s) # removes digits at the end of the string
     global lastSelectedFile
     global selectedFiles
 
-    # multi select
+    # multi select (uses extremely wrong method to select files)
     def SelectInRange(a, b):
         for x in range(a, b+1):
             new_string = re.sub(r"\d+(?=\.[^.]*$)", str(x).zfill(3), lastSelectedFile)
