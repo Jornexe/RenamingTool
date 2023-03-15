@@ -56,55 +56,54 @@ with dpg.theme() as item_theme:
 
 
 # file selection
-selectedFiles = []
-lastSelectedFile = ""
-def selectFiles(s, e):
-    s = re.sub(r'\d+$', '', s) # removes digits at the end of the string
-    global lastSelectedFile
-    global selectedFiles
+selectedRows = []
+lastSelectedRowPos = None
+def selectFiles(z, e):
+    global selectedRows
+    global lastSelectedRowPos
 
-    # multi select (uses extremely wrong method to select files)
-    def SelectInRange(a, b):
-        for x in range(a, b+1):
-            new_string = re.sub(r"\d+(?=\.[^.]*$)", str(x).zfill(3), lastSelectedFile)
-            selectedFiles.append(new_string)
+    parent = dpg.get_item_parent(item=z)
+    gparentChildren = dpg.get_item_children(dpg.get_item_parent(parent))[1]
     if (dpg.is_key_down(key=dpg.mvKey_Shift) and not dpg.is_key_down(key=dpg.mvKey_Control)):
-        if lastSelectedFile:
-            a = int(re.search(r"\d+(?=\.[^.]*$)", lastSelectedFile).group())
-            b = int(re.search(r"\d+(?=\.[^.]*$)", s).group())
-            if (a < b):
-                SelectInRange(a, b)
-            else: SelectInRange(b, a)  
+        if lastSelectedRowPos:
+            print(lastSelectedRowPos, parent)
+            if (lastSelectedRowPos < parent):
+                for i in gparentChildren:
+                    if i in range(lastSelectedRowPos, parent+1):
+                        selectedRows.append(i)
+            else:
+                for i in gparentChildren:
+                    if i in range(parent, lastSelectedRowPos+1):
+                        selectedRows.append(i)
         else: 
-            selectedFiles.append(s)
-    
+            lastSelectedRowPos = parent
+            selectedRows.append(parent)
+        
     # single multi select
     elif (dpg.is_key_down(key=dpg.mvKey_Control) and not dpg.is_key_down(key=dpg.mvKey_Shift)):
-        if (s in selectedFiles):
-            selectedFiles.remove(s)
+        if parent in selectedRows:
+            selectedRows.remove(parent)
         else:
-            selectedFiles.append(s)
+            selectedRows.append(parent)
     
     # single select
     else:
-        selectedFiles.clear()
-        selectedFiles.append(s)
-    lastSelectedFile = s
+        selectedRows.clear()
+        selectedRows.append(parent)
+    lastSelectedRowPos = parent
     highlightSelectedFiles()
-    print(selectedFiles)
 
 
 def highlightSelectedFiles():
-    for i in selectedFiles:
-        for x in range(0, 5):
-            dpg.set_value(i+"0", True)
-            dpg.bind_item_theme(item=i+str(x), theme=item_theme)
-            
-    for i in onlyfiles:
-        if i not in selectedFiles:
-            for x in range(0, 5):
-                dpg.set_value(i+"0", False)
-                dpg.bind_item_theme(item=i+str(x), theme= 0)
+    for i in selectedRows:
+        for x in dpg.get_item_children(i, 1):
+            dpg.set_value(item=x, value=True)
+            dpg.bind_item_theme(item=x, theme=item_theme)
+    for i in dpg.get_item_children(item="fileTableContent")[1]:
+        if i not in selectedRows:
+            for x in dpg.get_item_children(i, 1):
+                dpg.set_value(item=x, value=False)
+                dpg.bind_item_theme(item=x, theme=0)
 
 
 # generate fileTableGroup
