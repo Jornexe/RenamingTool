@@ -15,10 +15,11 @@ dpg.create_context()
 dpg.add_stage(tag="Staging")
 
 
-# assign dir
+# assign dir and vars
 wdir = os.getcwd().replace('\\', '/')
 lastDir = ""
-
+selectedRows = []
+lastSelectedRowPos = None
 
 # assign new dir
 def getdirlog():
@@ -34,6 +35,7 @@ def getdirlog():
         dpg.configure_item(item="curDir", default_value=wdir)
     except Exception as e:
         print(e)
+    selectedRows.clear()
     generateTable()
 
 
@@ -56,25 +58,30 @@ with dpg.theme() as item_theme:
 
 
 # file selection
-selectedRows = []
-lastSelectedRowPos = None
 def selectFiles(z, e):
     global selectedRows
     global lastSelectedRowPos
 
     parent = dpg.get_item_parent(item=z)
     gparentChildren = dpg.get_item_children(dpg.get_item_parent(parent))[1]
+
+    # multi select
     if (dpg.is_key_down(key=dpg.mvKey_Shift) and not dpg.is_key_down(key=dpg.mvKey_Control)):
         if lastSelectedRowPos:
-            print(lastSelectedRowPos, parent)
             if (lastSelectedRowPos < parent):
-                for i in gparentChildren:
+                for en, i in enumerate(gparentChildren):
                     if i in range(lastSelectedRowPos, parent+1):
-                        selectedRows.append(i)
+                        if i in selectedRows and en > 1:
+                            selectedRows.remove(i)
+                        else:    
+                            selectedRows.append(i)
             else:
-                for i in gparentChildren:
+                for en, i in enumerate(gparentChildren):
                     if i in range(parent, lastSelectedRowPos+1):
-                        selectedRows.append(i)
+                        if i in selectedRows and en > 1:
+                            selectedRows.remove(i)
+                        else:    
+                            selectedRows.append(i)
         else: 
             lastSelectedRowPos = parent
             selectedRows.append(parent)
@@ -136,13 +143,35 @@ width, height = 600,600
 with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True, no_move=True):
     dpg.add_input_text(tag="curDir",default_value=wdir, label="Current Directory", callback=lambda e,s : print(e,s))
     dpg.add_button(tag="testing",label="select directory", callback=getdirlog)
-    dpg.add_group(tag="tableWindow")
-                        
-    with dpg.group(tag="options"):
-        dpg.add_text("HEllo!")
-        dpg.add_button(label="get cur dir", callback=lambda: print(wdir))
-        dpg.add_button(label="gen", callback=generateTable)  
-dpg.create_viewport(title='File Name', width=width, height=height)
+    with dpg.table(header_row=False,resizable=True, borders_innerH=True):
+        dpg.add_table_column()
+        with dpg.table_row():
+            dpg.add_group(tag="tableWindow")
+        with dpg.table_row():                    
+            with dpg.group(tag="options"):
+                dpg.add_text("HEllo!")
+                with dpg.table(header_row=False):
+                    dpg.add_table_column(width_fixed=True)
+                    dpg.add_table_column()
+                    with dpg.table_row():
+                        with dpg.group():
+                            dpg.add_text(label="Renaming", default_value="Renaming Style")
+                            dpg.add_radio_button(items=["Automatic", "Semi-Automatic", "Manual"])
+                        with dpg.group(tag="renamingStyle"):
+                            for i in range(50):
+                                dpg.add_text(default_value=i)
+
+def updateFTableSize(s,t):
+    # try:
+    dpg.set_item_height(item="fileTableContent", height=int(dpg.get_item_height(t)/2))
+    # except Exception as e:
+    #     print(e)
+with dpg.item_handler_registry(tag="updateOnViewportChange"):
+    dpg.add_item_resize_handler(callback=updateFTableSize)    
+dpg.bind_item_handler_registry(item="Prime", handler_registry="updateOnViewportChange")
+
+
+dpg.create_viewport(title='Renaming Utility', width=width, height=height)
 
 
 dpg.setup_dearpygui()
