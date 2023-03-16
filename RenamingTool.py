@@ -67,21 +67,17 @@ def selectFiles(z, e):
 
     # multi select
     if (dpg.is_key_down(key=dpg.mvKey_Shift) and not dpg.is_key_down(key=dpg.mvKey_Control)):
-        if lastSelectedRowPos:
-            if (lastSelectedRowPos < parent):
-                for en, i in enumerate(gparentChildren):
-                    if i in range(lastSelectedRowPos, parent+1):
-                        if i in selectedRows and en > 1:
+        if lastSelectedRowPos is not None:
+            start_idx = min(parent, lastSelectedRowPos)
+            end_idx = max(parent, lastSelectedRowPos)
+
+            for i in gparentChildren:
+                if start_idx <= i <= end_idx:
+                    if i not in selectedRows:
+                        selectedRows.append(i)
+                    else:
+                        if i != parent and i != lastSelectedRowPos:
                             selectedRows.remove(i)
-                        else:    
-                            selectedRows.append(i)
-            else:
-                for en, i in enumerate(gparentChildren):
-                    if i in range(parent, lastSelectedRowPos+1):
-                        if i in selectedRows and en > 1:
-                            selectedRows.remove(i)
-                        else:    
-                            selectedRows.append(i)
         else: 
             lastSelectedRowPos = parent
             selectedRows.append(parent)
@@ -111,6 +107,7 @@ def highlightSelectedFiles():
             for x in dpg.get_item_children(i, 1):
                 dpg.set_value(item=x, value=False)
                 dpg.bind_item_theme(item=x, theme=0)
+    preRename()
 
 
 # generate fileTableGroup
@@ -137,6 +134,27 @@ def generateTable():
                     dpg.add_selectable(label=f"", tag=i+"4")
     dpg.move_item("fileTableGroup", parent="tableWindow")
 
+def preRename():
+    for i in selectedRows:
+        print(dpg.get_item_label(dpg.get_item_children(i, 1)[0]))
+
+
+def rStyle(s,e):
+    if dpg.does_item_exist(item="renamingStyle"):
+        if dpg.get_item_children(item="renamingStyle", slot=1):
+            dpg.delete_item(item="renamingStyle", children_only=True)
+    with dpg.group(tag="rStyleOptions", parent="renamingStyle"):
+        if e == "Automatic":
+            None
+            dpg.add_text(default_value="Numbering")
+            # dpg.add_input_int(label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_button(label="Rename")
+        elif e == "Semi-Automatic":
+            None
+        elif e == "Manual":
+            None
 
 # Main DPG window
 with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True, no_move=True):
@@ -148,23 +166,26 @@ with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True,
             dpg.add_group(tag="tableWindow")
         with dpg.table_row():                    
             with dpg.group(tag="options"):
-                dpg.add_text("HEllo!")
                 with dpg.table(header_row=False):
                     dpg.add_table_column(width_fixed=True)
                     dpg.add_table_column()
                     with dpg.table_row():
                         with dpg.group():
                             dpg.add_text(label="Renaming", default_value="Renaming Style")
-                            dpg.add_radio_button(items=["Automatic", "Semi-Automatic", "Manual"])
+                            dpg.add_radio_button(items=["Automatic", "Semi-Automatic", "Manual"], callback=rStyle)
                         with dpg.group(tag="renamingStyle"):
-                            for i in range(50):
-                                dpg.add_text(default_value=i)
+                            None
 
+# implement drag for the bottom of the ftable for resizing
+ftableH = 0
 def updateFTableSize(s,t):
     # try:
-    dpg.set_item_height(item="fileTableContent", height=int(dpg.get_item_height(t)/2))
+    tH = dpg.get_item_height(t)
+    dpg.set_item_height(item="fileTableContent", height=int(tH/3+(min(max(ftableH,-(tH/3)),tH/3))))
     # except Exception as e:
     #     print(e)
+# with dpg.item_handler_registry(tag="updateOnTableSizeChange"):
+#     dpg.additemc
 with dpg.item_handler_registry(tag="updateOnViewportChange"):
     dpg.add_item_resize_handler(callback=updateFTableSize)    
 dpg.bind_item_handler_registry(item="Prime", handler_registry="updateOnViewportChange")
@@ -180,5 +201,15 @@ try:
 except Exception as e:
     print(e)
 generateTable()
+
+# jank solution to select Automatic on startup
+def on_main_window_visible(sender, app_data):
+    rStyle(None, "Automatic")
+    dpg.bind_item_handler_registry("Prime", 0)
+
+with dpg.item_handler_registry(tag="main_window_handler"):
+    dpg.add_item_visible_handler(callback=on_main_window_visible)
+dpg.bind_item_handler_registry("Prime", "main_window_handler")
+
 dpg.start_dearpygui()
 dpg.destroy_context()
