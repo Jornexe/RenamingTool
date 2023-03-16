@@ -89,33 +89,49 @@ def selectFiles(z, e):
                 if start_idx <= i <= end_idx:
                     if i not in selectedRows:
                         selectedRows.append(i)
+                        themeBinder(i, True)
                     else:
                         if i != parent and i != lastSelectedRowPos:
                             selectedRows.remove(i)
+                            themeBinder(i, False)
         else: 
             lastSelectedRowPos = parent
             selectedRows.append(parent)
-        
+            themeBinder(parent, True)
+
     # single multi select
     elif (dpg.is_key_down(key=dpg.mvKey_Control) and not dpg.is_key_down(key=dpg.mvKey_Shift)):
         if parent in selectedRows:
             selectedRows.remove(parent)
+            themeBinder(parent, False)
         else:
             selectedRows.append(parent)
+            themeBinder(parent, True)
     
     # single select
     else:
+        for x in selectedRows:
+            themeBinder(x, False)
         selectedRows.clear()
         selectedRows.append(parent)
+        themeBinder(parent, True)
     lastSelectedRowPos = parent
-    highlightSelectedFiles()
+    # highlightSelectedFiles()
+    preRename()
+
+def themeBinder(parent, bool):
+    if bool:
+        for x in dpg.get_item_children(parent, 1):
+            dpg.set_value(item=x, value=True)
+            dpg.bind_item_theme(item=x, theme=item_theme)
+    else:
+        for x in dpg.get_item_children(parent, 1):
+            dpg.set_value(item=x, value=False)
+            dpg.bind_item_theme(item=x, theme=0)
+        dpg.set_item_label(dpg.get_item_children(parent, 1)[4], "")
 
 
 def highlightSelectedFiles():
-    for i in selectedRows:
-        for x in dpg.get_item_children(i, 1):
-            dpg.set_value(item=x, value=True)
-            dpg.bind_item_theme(item=x, theme=item_theme)
     for i in dpg.get_item_children(item="fileTableContent")[1]:
         if i not in selectedRows:
             dpg.set_item_label(dpg.get_item_children(i,1)[1], dpg.get_item_label(dpg.get_item_children(i,1)[0]))
@@ -135,7 +151,7 @@ def generateTable():
         print("can't delete something that does not exist")
     with dpg.group(tag="fileTableGroup", parent="tableWindow"):
         dpg.add_group(tag="fileTableHeadersGroup")
-        with dpg.table(tag="fileTableContent", header_row=True, resizable=True, borders_innerV=True, height=300, scrollY=True, freeze_rows=1, freeze_columns=1) as theFileTable:
+        with dpg.table(tag="fileTableContent", header_row=True, resizable=True, borders_innerV=True, height=300, scrollY=True, freeze_rows=1, freeze_columns=1, clipper=True) as theFileTable:
             dpg.add_table_column(tag="someTag",label="File Name", width_stretch=False, width_fixed=True)
             dpg.add_table_column(tag="fNewfile",label="New File Name", width_stretch=False, width_fixed=True)
             dpg.add_table_column(tag="fSize",label="Size", width_stretch=False, width_fixed=True)
@@ -163,9 +179,12 @@ def preRename():
 
 def rename():
     for i in selectedRows:
-        dpg.get_item_children(i, 1)[0]
-        dpg.get_item_children(i, 1)[1]
-        os.rename()
+        filename = dpg.get_item_label(dpg.get_item_children(i, 1)[0])
+        newfilename = dpg.get_item_label(dpg.get_item_children(i, 1)[1])
+        os.rename(wdir+"/"+filename, wdir+"/"+newfilename)
+        dpg.set_item_label(dpg.get_item_children(i, 1)[0], newfilename)
+        dpg.set_item_label(dpg.get_item_children(i, 1)[4], "OK")
+    preRename()
 
 def rStyle(s,e):
     if dpg.does_item_exist(item="renamingStyle"):
@@ -177,7 +196,7 @@ def rStyle(s,e):
             # dpg.add_input_int(label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
             dpg.add_input_int(tag="start", label="Start", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]), callback=preRename)
             dpg.add_input_int(tag="increment", label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
-            dpg.add_button(label="Rename")
+            dpg.add_button(label="Rename", callback=rename)
         elif e == "Semi-Automatic":
             dpg.add_text(default_value="Numbering")
             dpg.add_input_int(label="Replace From", width=int(dpg.get_text_size(text="000000000+Start")[0]))
