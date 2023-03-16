@@ -161,6 +161,11 @@ def preRename():
         # print(fileid, fileName)
         startValue+=increment
 
+def rename():
+    for i in selectedRows:
+        dpg.get_item_children(i, 1)[0]
+        dpg.get_item_children(i, 1)[1]
+        os.rename()
 
 def rStyle(s,e):
     if dpg.does_item_exist(item="renamingStyle"):
