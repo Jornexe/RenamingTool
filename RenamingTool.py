@@ -254,7 +254,7 @@ with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True,
             dpg.add_group(tag="tableWindow")
         with dpg.table_row():                    
             with dpg.group(tag="options"):
-                with dpg.table(header_row=False):
+                with dpg.table(header_row=False, borders_innerV=True):
                     dpg.add_table_column(width_fixed=True)
                     dpg.add_table_column()
                     with dpg.table_row():
