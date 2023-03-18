@@ -116,7 +116,6 @@ def selectFiles(z, e):
         selectedRows.append(parent)
         themeBinder(parent, True)
     lastSelectedRowPos = parent
-    # highlightSelectedFiles()
     preRename()
 
 def themeBinder(parent, bool):
@@ -129,16 +128,7 @@ def themeBinder(parent, bool):
             dpg.set_value(item=x, value=False)
             dpg.bind_item_theme(item=x, theme=0)
         dpg.set_item_label(dpg.get_item_children(parent, 1)[4], "")
-
-
-def highlightSelectedFiles():
-    for i in dpg.get_item_children(item="fileTableContent")[1]:
-        if i not in selectedRows:
-            dpg.set_item_label(dpg.get_item_children(i,1)[1], dpg.get_item_label(dpg.get_item_children(i,1)[0]))
-            for x in dpg.get_item_children(i, 1):
-                dpg.set_value(item=x, value=False)
-                dpg.bind_item_theme(item=x, theme=0)
-    preRename()
+        dpg.set_item_label(dpg.get_item_children(parent, 1)[1], dpg.get_item_label(dpg.get_item_children(parent, 1)[0]))
 
 
 # generate fileTableGroup
