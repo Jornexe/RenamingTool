@@ -156,16 +156,23 @@ def generateTable():
                     dpg.add_selectable(label=f"", tag=i+"4")
     dpg.move_item("fileTableGroup", parent="tableWindow")
 
+
 def preRename():
+    style = dpg.get_value("ReNamingStyleTag")
     selectedRows.sort(key=lambda x: dpg.get_item_children(x, 1)[0])
-    startValue = dpg.get_value(item="start")
-    increment = dpg.get_value(item="increment")
-    for i in selectedRows:
-        fileid = dpg.get_item_children(i, 1)[0]
-        fileName = dpg.get_item_label(fileid)
-        dpg.set_item_label(dpg.get_item_children(i, 1)[1], re.sub(r'(\d+)(?=\.)', str('{:03d}'.format(startValue)), fileName))
-        # print(fileid, fileName)
-        startValue+=increment
+    if style == "Automatic":
+        startValue = dpg.get_value(item="start")
+        increment = dpg.get_value(item="increment")
+        for i in selectedRows:
+            fileid = dpg.get_item_children(i, 1)[0]
+            fileName = dpg.get_item_label(fileid)
+            dpg.set_item_label(dpg.get_item_children(i, 1)[1], re.sub(r'(\d+)(?=\.)', str('{:03d}'.format(startValue)), fileName))
+            # print(fileid, fileName)
+            startValue+=increment
+    elif style == "Semi-Automatic":
+        NotImplementedError()
+    elif style == "Manual":
+        NotImplementedError()
 
 def rename():
     for i in selectedRows:
@@ -251,7 +258,7 @@ with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True,
                         with dpg.group():
                             dpg.add_text(label="Renaming", default_value="Renaming Style")
                             # dpg.add_radio_button(items=["Automatic", "Semi-Automatic", "Manual"], callback=rStyle)
-                            dpg.add_radio_button(items=["Automatic"], callback=rStyle)
+                            dpg.add_radio_button(tag="ReNamingStyleTag",items=["Automatic"], default_value="Automatic", callback=rStyle)
                         with dpg.group(tag="renamingStyle"):
                             None
 
