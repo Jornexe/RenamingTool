@@ -190,31 +190,68 @@ def rStyle(s,e):
         if dpg.get_item_children(item="renamingStyle", slot=1):
             dpg.delete_item(item="renamingStyle", children_only=True)
     with dpg.group(tag="rStyleOptions", parent="renamingStyle"):
+        intwidth = int(dpg.get_text_size(text="000000000+Start")[0])
+        Mwidth = int(dpg.get_text_size(text="000000000+Add Number")[0])
         if e == "Automatic":
             dpg.add_text(default_value="Numbering")
-            # dpg.add_input_int(label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
-            dpg.add_input_int(tag="start", label="Start", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]), callback=preRename)
-            dpg.add_input_int(tag="increment", label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            # dpg.add_input_int(label="Start", width=intwidth)
+            dpg.add_input_int(tag="start", label="Start", default_value=1, width=intwidth, callback=preRename)
+            dpg.add_input_int(tag="increment", label="Increment", default_value=1, width=intwidth)
             dpg.add_button(label="Rename", callback=rename)
         elif e == "Semi-Automatic":
             dpg.add_text(default_value="Numbering")
-            dpg.add_input_int(tag="rfrom", label="Replace From", width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(tag="rfrom", label="Replace From", width=intwidth)
             dpg.add_checkbox(tag="", label="From End")
-            dpg.add_input_int(tag="", label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
-            dpg.add_input_int(tag="", label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(tag="", label="Start", width=intwidth)
+            dpg.add_input_int(tag="", label="Increment", default_value=1, width=intwidth)
             dpg.add_button(label="Rename")
         elif e == "Manual":
-            with dpg.table(tag="ttt", header_row=False, borders_innerH=True, borders_innerV=True):
-                for i in range(4):
-                    dpg.add_table_column()
-                for i in range(6):
+            with dpg.group(tag="ttt"):
+                with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
+                    for i in range(2):
+                        dpg.add_table_column(width_fixed=True)
                     with dpg.table_row():
-                        for x in range(4):
-                            # print("ttt"+str(i)+""+str(x))
-                            with dpg.group(tag=("ttt"+str(i)+""+str(x))):
-                                dpg.add_text(default_value=str(i)+"             "+str(x))
-                # print("\n\n\n")
-                None
+                        dpg.add_text("String Select", color=[150,255,150])
+                        dpg.add_checkbox()
+                    with dpg.table_row():
+                        a = dpg.add_text("Select From")
+                        b = dpg.add_input_int(label="", width=intwidth, default_value=0)
+                        dpg.bind_item_theme(item=a,theme=renameOptions_theme)
+                    with dpg.table_row():
+                        with dpg.group(horizontal=True):
+                            dpg.add_checkbox()
+                            dpg.add_text("Select To")
+                        dpg.add_input_int(label="", width=intwidth)
+                    with dpg.table_row():
+                        with dpg.group(horizontal=True):
+                            dpg.add_checkbox()
+                            dpg.add_text("Regex")
+                        dpg.add_input_text(label="", width=Mwidth)
+            with dpg.group():
+                with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
+                    for i in range(2):
+                        dpg.add_table_column(width_fixed=True)
+                    with dpg.table_row():
+                        dpg.add_text("Replace", color=[150,255,150])
+                        dpg.add_checkbox()
+                    with dpg.table_row():
+                        dpg.add_text("Replace With")
+                        dpg.add_input_text(width=Mwidth)
+            with dpg.group():
+                with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
+                    for i in range(2):
+                        dpg.add_table_column(width_fixed=True)
+                    with dpg.table_row():
+                        dpg.add_text("Numbering", color=[150,255,150])
+                        dpg.add_checkbox()
+                    with dpg.table_row():
+                        dpg.add_text("Start")
+                        dpg.add_input_int(label="", width=Mwidth)
+                    with dpg.table_row():
+                        dpg.add_text("Increment")
+                        dpg.add_input_int(label="", default_value=1, width=Mwidth)
+
+
             pass
             # for x in 0:
                 # pass
@@ -222,33 +259,10 @@ def rStyle(s,e):
                 # with dpg.table(header_row=False):
                 #     dpg.add_table_column(label="Option", width_fixed=True)
                 #     dpg.add_table_column(label="Value")
-                #     with dpg.table_row() as row1:
-                #         dpg.add_text("String Replacement", color=[150,150,150])
-                #         dpg.bind_item_theme(item=row1,theme=renameOptions_theme)
-                #         # print(dpg.getitem)
-                #     with dpg.table_row():
-                #         a = dpg.add_text("Replace From")
-                #         b = dpg.add_input_text(label="", width=Mwidth)
-                #         dpg.bind_item_theme(item=a,theme=renameOptions_theme)
-                #     with dpg.table_row():
-                #         dpg.add_text("Replace To")
-                #         dpg.add_input_text(label="", width=Mwidth)
-                #     with dpg.table_row():
-                #         dpg.add_text("Regex Replacement")
-                #     with dpg.table_row():
-                #         dpg.add_text("Regex")
-                #         dpg.add_input_text(label="", width=Mwidth)
                 #     with dpg.table_row():
                 #         dpg.add_text("Replace With")
                 #         dpg.add_input_text(label="", width=Mwidth)
-                #     with dpg.table_row():
-                #         dpg.add_text("Numbering")
-                #     with dpg.table_row():
-                #         dpg.add_text("Start")
-                #         dpg.add_input_int(label="", width=Mwidth)
-                #     with dpg.table_row():
-                #         dpg.add_text("Increment")
-                #         dpg.add_input_int(label="", default_value=1, width=Mwidth)
+                #     
                 #     with dpg.table_row():
                 #         dpg.add_text("Add")
                 #     with dpg.table_row():
@@ -258,13 +272,7 @@ def rStyle(s,e):
                 #         dpg.add_button(label="Rename")
 
 def autoTable(tableTag:str) -> dpg.table:
-    print("called "+tableTag)
-    print(dpg.get_item_children(item=tableTag))
-    for en,row in enumerate(dpg.get_item_children(tableTag, slot=1)):
-        size = 0,0
-        for i in dpg.get_item_children(row):
-            print(str(str(tableTag)+str(en)+str(i)))
-            print(dpg.get_item_children(item=str(str(tableTag)+str(en)+str(i))))
+    print(dpg.get_item_rect_size("ttt"))
     
 
 # ---------------------------------------------------------------------------- #
