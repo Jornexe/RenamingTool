@@ -20,6 +20,7 @@ wdir = os.getcwd().replace('\\', '/')
 lastDir = ""
 selectedRows = []
 lastSelectedRowPos = None
+defaultRStyle = "Manual"
 
 # assign new dir
 def getdirlog():
@@ -57,7 +58,7 @@ def listFilesInDir():
     onlyfiles = sorted(onlyfiles, key=get_num)
     # print(onlyfiles)
 
-
+# -------------------------------- theme stuff ------------------------------- #
 # theme for selected items
 with dpg.theme() as item_theme:
     with dpg.theme_component(dpg.mvAll):
@@ -71,7 +72,7 @@ with dpg.theme() as renameOptions_theme:
         dpg.add_theme_color(dpg.mvThemeCol_TableRowBg, (60, 255, 60), category=dpg.mvThemeCat_Core)
         # dpg.add_theme_color(dpg.mvThemeCol_bg)
 
-# file selection
+# ------------------------------ file selection ------------------------------ #
 def selectFiles(z, e):
     global selectedRows
     global lastSelectedRowPos
@@ -131,7 +132,7 @@ def themeBinder(parent, bool):
         dpg.set_item_label(dpg.get_item_children(parent, 1)[1], dpg.get_item_label(dpg.get_item_children(parent, 1)[0]))
 
 
-# generate fileTableGroup
+# -------------------------- generate fileTableGroup ------------------------- #
 def generateTable():
     global onlyfiles
     listFilesInDir()
@@ -171,6 +172,7 @@ def preRename():
             startValue+=increment
     elif style == "Semi-Automatic":
         NotImplementedError()
+        
     elif style == "Manual":
         NotImplementedError()
 
@@ -196,52 +198,78 @@ def rStyle(s,e):
             dpg.add_button(label="Rename", callback=rename)
         elif e == "Semi-Automatic":
             dpg.add_text(default_value="Numbering")
-            dpg.add_input_int(label="Replace From", width=int(dpg.get_text_size(text="000000000+Start")[0]))
-            dpg.add_input_int(label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
-            dpg.add_input_int(label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(tag="rfrom", label="Replace From", width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_checkbox(tag="", label="From End")
+            dpg.add_input_int(tag="", label="Start", width=int(dpg.get_text_size(text="000000000+Start")[0]))
+            dpg.add_input_int(tag="", label="Increment", default_value=1, width=int(dpg.get_text_size(text="000000000+Start")[0]))
             dpg.add_button(label="Rename")
         elif e == "Manual":
-            Mwidth = int(dpg.get_text_size(text="000000000+Add Number")[0])
-            with dpg.table(header_row=False):
-                dpg.add_table_column(label="Option", width_fixed=True)
-                dpg.add_table_column(label="Value")
-                with dpg.table_row() as row1:
-                    dpg.add_text("String Replacement")
-                    dpg.bind_item_theme(item=row1,theme=renameOptions_theme)
-                    # print(dpg.getitem)
-                with dpg.table_row():
-                    a = dpg.add_text("Replace From")
-                    b = dpg.add_input_text(label="", width=Mwidth)
-                    dpg.bind_item_theme(item=a,theme=renameOptions_theme)
-                with dpg.table_row():
-                    dpg.add_text("Replace To")
-                    dpg.add_input_text(label="", width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_text("Regex Replacement")
-                with dpg.table_row():
-                    dpg.add_text("Regex")
-                    dpg.add_input_text(label="", width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_text("Replace With")
-                    dpg.add_input_text(label="", width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_text("Numbering")
-                with dpg.table_row():
-                    dpg.add_text("Start")
-                    dpg.add_input_int(label="", width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_text("Increment")
-                    dpg.add_input_int(label="", default_value=1, width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_text("Add")
-                with dpg.table_row():
-                    dpg.add_text("Add Text")
-                    dpg.add_input_text(label="", width=Mwidth)
-                with dpg.table_row():
-                    dpg.add_button(label="Rename")
+            with dpg.table(tag="ttt", header_row=False, borders_innerH=True, borders_innerV=True):
+                for i in range(4):
+                    dpg.add_table_column()
+                for i in range(6):
+                    with dpg.table_row():
+                        for x in range(4):
+                            # print("ttt"+str(i)+""+str(x))
+                            with dpg.group(tag=("ttt"+str(i)+""+str(x))):
+                                dpg.add_text(default_value=str(i)+"             "+str(x))
+                # print("\n\n\n")
+                None
+            pass
+            # for x in 0:
+                # pass
+                #//ANCHOR Collapsed old Manual Layout -  Mwidth = int(dpg.get_text_size(text="000000000+Add Number")[0])
+                # with dpg.table(header_row=False):
+                #     dpg.add_table_column(label="Option", width_fixed=True)
+                #     dpg.add_table_column(label="Value")
+                #     with dpg.table_row() as row1:
+                #         dpg.add_text("String Replacement", color=[150,150,150])
+                #         dpg.bind_item_theme(item=row1,theme=renameOptions_theme)
+                #         # print(dpg.getitem)
+                #     with dpg.table_row():
+                #         a = dpg.add_text("Replace From")
+                #         b = dpg.add_input_text(label="", width=Mwidth)
+                #         dpg.bind_item_theme(item=a,theme=renameOptions_theme)
+                #     with dpg.table_row():
+                #         dpg.add_text("Replace To")
+                #         dpg.add_input_text(label="", width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_text("Regex Replacement")
+                #     with dpg.table_row():
+                #         dpg.add_text("Regex")
+                #         dpg.add_input_text(label="", width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_text("Replace With")
+                #         dpg.add_input_text(label="", width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_text("Numbering")
+                #     with dpg.table_row():
+                #         dpg.add_text("Start")
+                #         dpg.add_input_int(label="", width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_text("Increment")
+                #         dpg.add_input_int(label="", default_value=1, width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_text("Add")
+                #     with dpg.table_row():
+                #         dpg.add_text("Add Text")
+                #         dpg.add_input_text(label="", width=Mwidth)
+                #     with dpg.table_row():
+                #         dpg.add_button(label="Rename")
 
+def autoTable(tableTag:str) -> dpg.table:
+    print("called "+tableTag)
+    print(dpg.get_item_children(item=tableTag))
+    for en,row in enumerate(dpg.get_item_children(tableTag, slot=1)):
+        size = 0,0
+        for i in dpg.get_item_children(row):
+            print(str(str(tableTag)+str(en)+str(i)))
+            print(dpg.get_item_children(item=str(str(tableTag)+str(en)+str(i))))
+    
 
-# Main DPG window
+# ---------------------------------------------------------------------------- #
+#                                Main DPG window                               #
+# ---------------------------------------------------------------------------- #
 with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True, no_move=True):
     dpg.add_input_text(tag="curDir",default_value=wdir, label="Current Directory", readonly=True)
     dpg.add_button(tag="testing",label="select directory", callback=getdirlog)
@@ -257,8 +285,9 @@ with dpg.window(tag="Prime", no_close=True, no_collapse=True, no_title_bar=True,
                     with dpg.table_row():
                         with dpg.group():
                             dpg.add_text(label="Renaming", default_value="Renaming Style")
-                            # dpg.add_radio_button(items=["Automatic", "Semi-Automatic", "Manual"], callback=rStyle)
-                            dpg.add_radio_button(tag="ReNamingStyleTag",items=["Automatic"], default_value="Automatic", callback=rStyle)
+                            dpg.add_radio_button(tag="ReNamingStyleTag", items=["Automatic", "Semi-Automatic", "Manual"], default_value=defaultRStyle, callback=rStyle)
+                            dpg.add_button(label="reFit", callback=lambda : autoTable("ttt"))
+                            # dpg.add_radio_button(tag="ReNamingStyleTag", items=["Automatic"], default_value="Automatic", callback=rStyle)
                         with dpg.group(tag="renamingStyle"):
                             None
 
@@ -290,7 +319,7 @@ generateTable()
 
 # jank solution to select Automatic on startup
 def on_main_window_visible(sender, app_data):
-    rStyle(None, "Automatic")
+    rStyle(None, defaultRStyle)
     dpg.bind_item_handler_registry(item="Prime", handler_registry="updateOnViewportChange")
 
 with dpg.item_handler_registry(tag="main_window_handler"):
