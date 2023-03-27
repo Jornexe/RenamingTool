@@ -193,20 +193,22 @@ def rStyle(s,e):
         intwidth = int(dpg.get_text_size(text="000000000+Start")[0])
         Mwidth = int(dpg.get_text_size(text="000000000+Add Number")[0])
         if e == "Automatic":
-            dpg.add_text(default_value="Numbering")
-            # dpg.add_input_int(label="Start", width=intwidth)
-            dpg.add_input_int(tag="start", label="Start", default_value=1, width=intwidth, callback=preRename)
-            dpg.add_input_int(tag="increment", label="Increment", default_value=1, width=intwidth)
-            dpg.add_button(label="Rename", callback=rename)
+            with dpg.group():
+                dpg.add_text(default_value="Numbering")
+                # dpg.add_input_int(label="Start", width=intwidth)
+                dpg.add_input_int(tag="start", label="Start", default_value=1, width=intwidth, callback=preRename)
+                dpg.add_input_int(tag="increment", label="Increment", default_value=1, width=intwidth)
+                dpg.add_button(label="Rename", callback=rename)
         elif e == "Semi-Automatic":
-            dpg.add_text(default_value="Numbering")
-            dpg.add_input_int(tag="rfrom", label="Replace From", width=intwidth)
-            dpg.add_checkbox(tag="", label="From End")
-            dpg.add_input_int(tag="", label="Start", width=intwidth)
-            dpg.add_input_int(tag="", label="Increment", default_value=1, width=intwidth)
-            dpg.add_button(label="Rename")
+            with dpg.group():
+                dpg.add_text(default_value="Numbering")
+                dpg.add_input_int(tag="rfrom", label="Replace From", width=intwidth)
+                dpg.add_checkbox(tag="", label="From End")
+                dpg.add_input_int(tag="", label="Start", width=intwidth)
+                dpg.add_input_int(tag="", label="Increment", default_value=1, width=intwidth)
+                dpg.add_button(label="Rename")
         elif e == "Manual":
-            with dpg.group(tag="ttt"):
+            with dpg.group(tag="1t"):
                 with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
                     for i in range(2):
                         dpg.add_table_column(width_fixed=True)
@@ -227,7 +229,7 @@ def rStyle(s,e):
                             dpg.add_checkbox()
                             dpg.add_text("Regex")
                         dpg.add_input_text(label="", width=Mwidth)
-            with dpg.group():
+            with dpg.group(tag="2t"):
                 with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
                     for i in range(2):
                         dpg.add_table_column(width_fixed=True)
@@ -237,7 +239,7 @@ def rStyle(s,e):
                     with dpg.table_row():
                         dpg.add_text("Replace With")
                         dpg.add_input_text(width=Mwidth)
-            with dpg.group():
+            with dpg.group(tag="3t"):
                 with dpg.table(header_row=False, borders_outerH=True, borders_outerV=True, no_host_extendX=True):
                     for i in range(2):
                         dpg.add_table_column(width_fixed=True)
